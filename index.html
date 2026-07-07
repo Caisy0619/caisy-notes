@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>诗·想</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#F5F0E8;--card:#FAF6F0;--accent:#6B8F5E;--accent-light:#8BAA7A;--accent-dark:#4A6B3F;--text:#2C2E26;--text-muted:#7A7D72;--border:#D8D2C4;--radius:10px;--font:-apple-system,BlinkMacSystemFont,"PingFang SC","Noto Sans SC","Microsoft YaHei",sans-serif}
+html{font-size:16px;scroll-behavior:smooth}
+body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:1.7;min-height:100vh}
+a{color:var(--accent);text-decoration:none}
+.container{max-width:800px;margin:0 auto;padding:0 20px}
+.header{padding:48px 0 20px;border-bottom:1px solid var(--border);margin-bottom:20px}
+.header h1{font-size:1.6rem;font-weight:700;color:var(--accent-dark)}
+.header .sub{font-size:0.85rem;color:var(--text-muted);margin-top:2px}
+.filter-bar{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:20px}
+.filter-bar .tag-btn{padding:4px 14px;border:1px solid var(--border);border-radius:20px;font-size:0.8rem;background:var(--card);color:var(--text-muted);cursor:pointer;transition:all .2s;user-select:none}
+.filter-bar .tag-btn:hover{border-color:var(--accent);color:var(--accent)}
+.filter-bar .tag-btn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.section-group{padding-bottom:60px}
+.section-title{font-size:1.1rem;font-weight:700;color:var(--accent-dark);margin-bottom:8px;padding-bottom:4px;border-bottom:2px solid var(--accent-light)}
+.section-desc{font-size:0.8rem;color:var(--text-muted);margin-bottom:14px}
+.article-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:18px 22px;cursor:pointer;transition:all .2s;margin-bottom:12px}
+.article-card:hover{border-color:var(--accent);box-shadow:0 2px 12px rgba(107,143,94,0.08)}
+.article-card h2{font-size:1rem;font-weight:600;margin-bottom:3px}
+.article-card p{font-size:0.84rem;color:var(--text-muted);line-height:1.5}
+.article-card .quote{margin-top:6px;padding:6px 12px;background:var(--bg);border-left:3px solid var(--accent-light);border-radius:4px;font-size:0.8rem;color:var(--text);font-style:italic}
+.article-view{display:none;padding-bottom:60px}
+.article-view .back{display:inline-flex;align-items:center;gap:4px;font-size:0.85rem;color:var(--text-muted);margin-bottom:20px;cursor:pointer}
+.article-view .back:hover{color:var(--accent)}
+.article-view h1{font-size:1.5rem;font-weight:700;color:var(--accent-dark);line-height:1.3;margin-bottom:20px;padding-bottom:12px;border-bottom:1px solid var(--border)}
+.article-view .content{font-size:0.95rem;line-height:1.8}
+.article-view .content p{margin-bottom:12px}
+.article-view .content blockquote{border-left:3px solid var(--accent-light);margin:12px 0;padding:8px 16px;background:var(--bg);border-radius:4px;font-style:italic}
+.article-view .content blockquote p{margin-bottom:0}
+.article-view .content h2{font-size:1.1rem;font-weight:600;margin:20px 0 8px;color:var(--accent-dark)}
+.article-view .content h3{font-size:1rem;font-weight:600;margin:16px 0 6px;color:var(--accent)}
+.article-view .content ul,.article-view .content ol{margin:8px 0 12px 20px}
+.article-view .content li{margin-bottom:6px}
+.article-view .content hr{margin:20px 0;border:none;border-top:1px solid var(--border)}
+.article-view .content .highlight{background:#F0F7ED;padding:2px 6px;border-radius:3px}
+.footer{text-align:center;padding:20px 0;font-size:0.8rem;color:var(--text-muted);border-top:1px solid var(--border)}
+@media(max-width:600px){
+  .header{padding:32px 0 16px}
+  .header h1{font-size:1.3rem}
+  .article-card{padding:14px 16px}
+  .article-view h1{font-size:1.25rem}
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header">
+    <h1>诗·想</h1>
+    <div class="sub">管理 · AI · 组织 · 思考</div>
+  </div>
+
+  <div class="filter-bar" id="filterBar"></div>
+  <div class="section-group" id="sectionGroup"></div>
+  <div class="article-view" id="articleView">
+    <div class="back" onclick="showList()">← 返回列表</div>
+    <div id="articleContent"></div>
+  </div>
+</div>
+
+<div class="footer"><div class="container">诗·想</div></div>
+
+<script>
+const sections = [
+  {
+    name: "AI认知",
+    desc: "AI到底能做什么、不能做什么，以及一个非技术背景的人怎么用好它",
+    tag: "AI",
+    articles: [
+      {
+        id: 1, title: "AI能力边界说明书",
+        summary: "AI能力分五层：执行、分析、创意、搜索、决策。你的输入质量决定了AI的输出质量。",
+        quote: "AI的输出质量 = 你的输入质量 + AI的执行能力。你给得越具体，AI越强。",
+        content: `
+        <h2>一句话使用法则</h2>
+        <blockquote>往①②③丢活，④⑤别碰。给角度=给好③，给资料=给好①②。</blockquote>
+
+        <h2>底层逻辑</h2>
+        <blockquote>AI的输出质量 = 你的输入质量 + AI的执行能力。你给得越具体，AI越强。你让AI自由发挥，AI越废。你是指挥官，AI是执行者。你给地图AI给路，你给材料AI给活。</blockquote>
+
+        <hr>
+
+        <h2>能力分类（按靠谱度排序）</h2>
+
+        <h3>① 执行/编辑 ✅ 9分 — 随便使</h3>
+        <p>给资料、给标准、给模板——出活。改合同、写记录、填报告、整理数据。最稳的领域。</p>
+        <p><strong>使用者需具备：</strong>能说清楚要干什么、能给模板/资料、知道验收标准。</p>
+
+        <h3>② 分析/推理 ✅ 7-8分 — 好用但要验</h3>
+        <p>给资料+给框架，AI能推导出隐含结论。拆公式、评面试、评培训——都是这一类。好用，但需要过一遍，AI可能推错。</p>
+        <p><strong>使用者需具备：</strong>能给足原始材料、能给分析框架、能验收结论是否合理。</p>
+
+        <h3>③ 创意/灵感 ⚠️ 3-9分 — 取决于使用者</h3>
+        <p>给方向AI能展开，给角度AI能放大。用得好就是核武器，用得差就是废话连篇。上限由使用者决定。</p>
+        <p><strong>使用者需具备：</strong>自己能深度思考、能给出刁钻角度、能分辨什么是真创意什么是缝合。</p>
+
+        <h3>④ 网络搜索/汇整 ❌ 3分 — 别用</h3>
+        <p>AI没有可靠资料源，自己去搜。必坑。AI会编数据、编来源、编引用。看起来像模像样，实际全是假的。</p>
+        <p><strong>使用者需具备：</strong>建议别用。非要用的话必须有核实信源的能力，能识别编造内容。</p>
+
+        <h3>⑤ 决策 ❌ — 不是"能不能做"，是"谁承担最终责任"</h3>
+        <p>AI可以分析、推荐、甚至做出比人更优的判断。但只要人类是最终的把关者和后果承担者，人类就是最终的决策者。这不是技术问题，是责任问题。</p>
+        <p><strong>使用者需具备：</strong>能设计决策框架、能把直觉判断转化为可复现的思考路径、能为最终选择承担全部责任。</p>
+
+        <hr>
+
+        <h2>使用者的四个参与层次</h2>
+        <p>基于季清华（Michelene Chi）的ICAP框架——Interactive（交互）、Constructive（建构）、Active（主动）、Passive（被动）。原框架描述学习者对知识的参与深度，这里我扩展为：<strong>使用者对AI的输入深度，决定AI的输出质量。</strong></p>
+
+        <h3>第一层：Passive 被动 — 一句指令丢出去</h3>
+        <p><strong>行为：</strong>"帮我查一下XX"、"写份报告"、"给点灵感"——不给原始资料、不给有效的搜索源。</p>
+        <p><strong>后果：</strong>无论后面再主动、再建构、再互动，源头上就是脏数据，产出的永远是垃圾。</p>
+        <p><strong>对应能力：</strong>④ 网络搜索/汇整（<strong>必坑区</strong>）</p>
+
+        <h3>第二层：Active 主动 — 给足材料和标准</h3>
+        <p><strong>行为：</strong>主动说明实际情况、强调重点、设定条件情境、提供资料和模板。</p>
+        <p><strong>要求：</strong>资料尽量准确和完整。<strong>A层不做好，C层必然偏。</strong></p>
+        <p><strong>对应能力：</strong>① 执行/编辑（<strong>稳定区</strong>）</p>
+
+        <h3>第三层：Constructive 建构 — 给材料和框架，让AI推导</h3>
+        <p><strong>行为：</strong>在A层基础上，进一步给分析框架、给独特视角、请AI提炼结论或发现盲点。</p>
+        <p><strong>要求：</strong>A层打底，C层才能深入。先确保材料全且准，再要求AI分析推演。</p>
+        <p><strong>对应能力：</strong>② 分析/推理（<strong>稳定区</strong>）</p>
+
+        <h3>第四层：Interactive 交互 — 深度对话中产生灵感</h3>
+        <p><strong>行为：</strong>给AI独特的角度、有深度的观点，然后在来回校正和追问中共同产出。</p>
+        <p><strong>本质：</strong>这不是独立的输入层——当C层做到极致（材料充分、角度刁钻、观点有深度），你自然就有了反馈的底气，真正的互动才会发生。<strong>没有C打底，I就是空转。</strong></p>
+        <p><strong>对应能力：</strong>③ 创意/灵感（<strong>上限区</strong>，取决于使用者的输入质量）</p>
+
+        <hr>
+
+        <h3>核心结论</h3>
+        <blockquote>每一层都依赖前一层做扎实。P层起步 → 后面怎么救都救不回来。A层不做好（资料不全不准）→ C层必然偏。C层不做好（分析不够深）→ I层就是空对空。I层不是追来的，是A层和C层做足后自然来的。</blockquote>
+
+        <h3>一个残酷的现实</h3>
+        <blockquote>大多数人只想做P层的输入（甩一句指令），却指望拿到I层的产出（深度互动）。没有A层打底、C层建构，所谓的"和AI深度互动"不过是两个空壳在对空喊话。所有"AI不好用"的抱怨，根源都在这里。不是AI不行，是你的输入不够。</blockquote>
+        `
+      },
+      {
+        id: 2, title: "黑着脸低着头的模范员工",
+        summary: "熄屏工作的AI就像黑着脸低着头的员工——不声不响就把活干了。没有情绪，没有内耗。",
+        quote: "70分的实习生，但不用哄、不喊累、下次比这次好。好用就行。",
+        content: `
+        <p>我让AI干活的时候，屏幕是暗着的（熄屏），略向下。</p>
+        <p>就像一个黑着脸低着头的员工——不声不响就把活干了。</p>
+
+        <p><strong>没有情绪，没有内耗。</strong></p>
+        <p>但标准化的活，清清楚楚。</p>
+        <p>还能在干完后自己总结成技能和记忆，不断优化。</p>
+        <p><strong>这简直就是模范员工。</strong></p>
+
+        <hr>
+
+        <h2>背后是什么</h2>
+        <p><strong>熄屏 =</strong> 不刷存在感。不需要你哄，不需要你夸。</p>
+        <p><strong>低头 =</strong> 不跟你争对错。你说往东，TA就做东。</p>
+        <p><strong>没情绪 =</strong> 不内耗。不会因为今天心情不好就说"这个我做不到"。</p>
+        <p><strong>干完活自己复盘建技能 =</strong> 不让你教第二遍。同样的错误，犯过一次就不犯第二次。</p>
+
+        <p>70分的实习生，但不用哄、不喊累、下次比这次好。好用就行。</p>
+
+        <hr>
+
+        <p>当然，TA永远做不到80分、90分。TA没有灵感、没有直觉、没有"我觉得这里不对劲"的隐性判断力。</p>
+        <p>但标准化的活，清清楚楚。这就够了。</p>
+        `
+      },
+      {
+        id: 10, title: "40岁人群对人工智能焦虑",
+        summary: "非技术背景的人从AI焦虑到入门的心路历程。8条实用建议。",
+        quote: "学习能力和年龄无关，只和自己想不想有关。",
+        content: `
+        <p>我和我的朋友40岁，最近比较焦虑，因为AI铺天盖地。点开社交媒体，文章看的一知半解，评论区几乎90%看不懂。自己硬着头皮安装、部署，也只能当个聊天机器人，非常非常焦虑。</p>
+
+        <p>但我耐心的看了几个视频，买了设备，部署了Agent，又链接到笔记软件，试了三天，终于开始一点点入门了。我的焦虑减轻了。</p>
+
+        <p>我有几个想法：</p>
+
+        <p><strong>1. 不要怕，先用起来。</strong>能用什么就用什么，哪怕是豆包。</p>
+
+        <p><strong>2. 要有好奇心。</strong>任何事情都可以和AI讨论，不断测试AI的边界。我是2023年开始用的ChatGPT，现在能上手，能在2025年DeepSeek火爆时跟上节奏，就是靠之前的积累。</p>
+
+        <p><strong>3. 忘记自己的年龄。</strong>学习能力和年龄无关，只和自己想不想有关。</p>
+
+        <p><strong>4. 要有耐心，不要怕慢。</strong>特别是学习，看资料看视频，越看就会越懂。漏洞填得越多，就能走得越快。就像给个加速度，速度一开始会慢，但只要有加速度，你会发现光速才是极限。</p>
+
+        <p><strong>5. 不要担心没有编程基础。</strong>现在的门槛很低，直接用中文和AI Agent说，它自己会帮你办。遇到Bug也是一样的。</p>
+
+        <p><strong>6. 多和年轻人交流。</strong>他们就是二十多年前学习Windows的我们。我们学Windows、学手机、学线上购物多快啊，他们学这些就和我们当时一样的。反过来，我们要对长辈同事更有耐心。</p>
+
+        <p><strong>7. 40多岁人群对于学习AI的焦虑可能是一个普遍现象。</strong>我觉得我可以做一个分享系列，这是一个我能感同身受的需求。</p>
+
+        <p><strong>8. 非技术背景，可以不用做第一批吃螃蟹的。</strong>因为你不会吃，还有可能做不必要的投入。做第二第三批也行，摸着前人过河，绕过别人的坑，性价比高。但别人吃了之后有经验了，就绝对不能做鸵鸟，哪怕不好吃也得尝尝是什么味道。因为技术迭代太快了，早一点上手，后面要补的课就少。</p>
+
+        <p>这就是我的心<strong>得和体会。</strong></p>
+        `
+      }
+    ]
+  },
+  {
+    name: "管理决策",
+    desc: "管人、管事、做决定——一个HRD的管理思考",
+    tag: "管理",
+    articles: [
+      {
+        id: 3, title: "管理AI与管理团队",
+        summary: "AI是70分的实习生——能做70%的活，但永远需要你把关。管理AI比管理团队更难。",
+        quote: "AI不是替代管理，而是把管理的缺陷放大了十倍。",
+        content: `
+        <h2>AI是70分的实习生</h2>
+        <p>说"AI当牛马"是常见误解。牛马只做重复体力活，不需要判断力。但大模型能做推理、能写方案，能力上限比牛马高，下限也可能低（幻觉、胡说八道）。</p>
+        <p>正确的定位：<strong>AI是你手下70分水平的实习生——能做70%的活，但永远需要你审核把关。</strong>你不审核，它就给你产出"听起来都对但细看全错"的东西。</p>
+
+        <h2>管理AI比管理团队更难的地方</h2>
+        <p>人有情绪，但有常识。跟下属说"客户关系维护好"，他知道每周约个饭。跟AI说同样的话，它可能生成一份SOP但不知道中秋节是哪天。</p>
+        <p>AI没有<strong>隐性知识</strong>。这意味着：管人，你定方向，他能自己补细节；管AI，你定方向，还要把细节拆到原子级。</p>
+
+        <h2>品味是终极稀缺品</h2>
+        <p>当AI可以一秒生成10个方案时，<strong>选择的能力比生产的能力贵100倍</strong>。</p>
+        <p>AI拉平了"生产能力"的门槛，但拉高了"判断力"的门槛。有品味的人指挥AI产出100分的东西；没品味的人产出60分的垃圾，效率还一样快。</p>
+
+        <h2>重新定义"解放人性"</h2>
+        <p>我说的解放人性、回归人性，并不是说有了AI就能够躺平不干活。而是有了AI，我们才能有更多的精力去关注人，提升人性的价值。</p>
+        <p>人性的价值不在于躺平，而是明知道难却勇敢，明知道累却坚持。</p>
+        <p>AI不是给你放假，是给你<strong>让出战场</strong>去打真正重要的仗。</p>
+
+        <hr>
+
+        <h3>最终结论</h3>
+        <blockquote>AI不是替代管理，而是把管理的缺陷放大了十倍。好的管理者因此更好；差的管理者连靠"辛苦"来掩饰的机会都没有了。</blockquote>
+        <p>先管好自己（品味、判断力、任务拆解），再管好AI，最后才能谈"释放人性"。顺序反了，就会变成"AI帮你更快地做了一堆错误决策"。</p>
+        `
+      },
+      {
+        id: 4, title: "越会管理，越容易用好AI",
+        summary: "一个观察：越会管理团队的人，越会用AI。不是巧合。",
+        quote: "用好AI，我们才有更多机会去做人。有了AI我们才更像人了。",
+        content: `
+        <h2>管理AI就像管理团队</h2>
+        <p>用AI最考验的不是技术和代码，而是管理能力。</p>
+
+        <p><strong>布置任务（提示词）：</strong>把任务的目标、背景讲清楚，要考虑来龙去脉。不是说一句"来份行业报告你去干吧"，AI就能做出你想要的东西。这和给下属布置任务没什么两样。</p>
+
+        <p><strong>用人所长：</strong>对于不同的任务要选择不同的模型（员工）。本质来说，既要知道完成任务最需要的核心能力，也要知道员工的核心能力是什么，是否匹配。</p>
+
+        <p><strong>定义标准（品味）：</strong>AI缺的不是码字能力，而是不能判断什么是好的东西。哪怕写一个简单的文案，如果使用者不把关，大概率出现的是能套用在所有情况但又不是那么合适的东西。必须和AI不断调试，什么才是你想要的。不审核就是一股AI味儿，就是不说人话。AI做的东西，必须有人把关，你必须知道什么是好的，什么是不好的。</p>
+
+        <h2>但用好AI不代表能管好团队</h2>
+        <p>因为AI不是人，没有情绪，没有内耗，体力无限，没有各方利益的牵扯，没有需求，没有欲望。你让它干啥，它就会去干啥。</p>
+        <p>而人需要关心、需要激励、需要关注、需要鼓励、需要休息。</p>
+        <p>世界上最难做的是人的工作，是把握人心，是顺应他人的人性，是克服自己的人性。</p>
+
+        <h2>AI无法取代人和人面对面的部分</h2>
+        <p>因为你还没习惯和机器建立信任。大部分人跟Agent打交道的时间不会超过2年，而人类的诞生已超过五万年。人和人的信任藏在每个人的本能中，是每一个眼神的交互，是每一次共事的体验，AI暂时无法取代。</p>
+
+        <h2>用好AI，让我们回归人性</h2>
+        <p>我们要让AI完成重复的不需要面对人的工作，让AI当牛马。让我们解放出来去做"人的工作"，比如建立信任、传递情感、表达关心。</p>
+        <p>从这一层角度来说，如果能用好AI，我们就有更多机会去做人。有了AI我们才更像人了。</p>
+        `
+      },
+      {
+        id: 5, title: "谁承担责任，谁就是决策者",
+        summary: "决策的本质不是'谁最聪明'，而是'谁承担最终责任'。只要人类是最终把关者，人类就是最终决策者。",
+        quote: "这不是技术问题，是责任问题。",
+        content: `
+        <blockquote>今天我们有了计算机，上面的内容还成立吗？有人说计算机会替代决策者，至少对中层经理人来说是这样。有人说所有运营决策在未来几年之内都会由计算机来做，而且要不了多久战略决策也会如此。我认为，计算机将推动管理者把今天大多数的现场调整式管理变成真正的决策。计算机将把一大堆习惯了被动应付的人转变成主动出击的真正的管理者和决策者。<br><br>——彼得·德鲁克《卓有成效的管理者》第七章 有效决策</blockquote>
+
+        <h2>刘澜老师的提问</h2>
+        <p>计算机能替代人们决策吗？</p>
+
+        <h2>其他读者的答案摘录</h2>
+        <ul>
+        <li>计算机不具备人类的感性（所以无法做出决策）</li>
+        <li>计算机可以辅助，但不能替代人做决策</li>
+        <li>计算机只能实现逻辑推导，而人类大量的决策依靠本能、激情或感受</li>
+        <li>读了《卓有》这一段再来看，计算机代替不了人们决策，因为文中讲到很多复杂事宜不能代替决策，计算机只是在帮忙做决定而已</li>
+        <li>看情况。我是从事IT项目管理，且日常使用企业级AI。在我擅长的IT决策领域，AI可帮助我推荐标准决策的边界。在这个层面，它是我的参谋，但决策者是我。在我不擅长的其他行业，且该领域是标准化普及度很高，我会退位让贤，采纳AI给予我的标准答案</li>
+        </ul>
+
+        <h2>我的回答</h2>
+        <p>大家的答案看起来都是从技术的角度回答这个问题，我试着从非技术的角度来回答它：</p>
+        <p>随着人工智能的发展，计算机很有可能会发展出自我意识、决策能力，并做出决策的行为，且可能其决策的能力比人类更具优势。但这都是基于一个前提——计算机成为了管理者，即《卓有成效的管理者》一书中所说的"管理者"，它能对自己的决策负责，而不是协助、辅导人类做出决策。</p>
+        <p>从这个意义上说，只要人类文明没有消亡，只要人类仍然需要承担决策带来的最终后果，只要计算机任何行为最后的把关者仍然是人类，而非计算机本身，那么计算机永远不可能代替人类做出决策，无论其给到的选项多么高明。</p>
+        <p>我认为这无关乎计算机能力本身，而是人类是否愿意卸下自己的部分责任让计算机来承担（而这恰恰又是人类做出的重大决策），或者计算机（自我意识）主动承担起了这个责任。</p>
+        <p>所以，<strong>谁愿意承担责任，谁对最终的结果负责，谁就是决策者。无论TA是人类、计算机，还是其他任何"东西"。</strong></p>
+
+        <h2>核心洞察</h2>
+        <p>其他人的回答：从技术能力出发——"AI没有情感/没有意识/不能理解复杂性"。</p>
+        <p>我的回答：从责任出发——决策者的定义不是"谁最聪明"，而是"谁承担最终责任"。</p>
+        <blockquote>这不是技术问题，是责任问题。</blockquote>
+        `
+      },
+      {
+        id: 6, title: "决策类工作的流程化设计",
+        summary: "决策不是执行工序，是设计工序。好的决策流程不是步骤列表，是思考框架的序列化。",
+        quote: "做流水线工人很简单，但设计出能判定产品的流水线，很难。",
+        content: `
+        <p>我每天占用时间最多的事情是：决策。</p>
+        <ul>
+        <li>这条规则要不要这么定</li>
+        <li>这个人要不要录用</li>
+        <li>这件事情要不要这么做</li>
+        <li>A好还是B好</li>
+        </ul>
+
+        <h2>决策 vs 流水线</h2>
+        <p>决策很复杂，并不是简单的流水线动作。</p>
+        <p>决策不是"执行工序"，而是<strong>"设计工序"</strong>。</p>
+        <blockquote>做流水线工人很简单，但是设计出能制造产品、甚至是包括判定产品的流水线，很难。</blockquote>
+
+        <h2>决策设计的核心</h2>
+        <p>从和省区销售经理面试流程的对话中我发现：</p>
+        <p>决策的设计不仅仅在于流程——不是"第一步思考什么，第二步思考什么"这么简单。而是在每一步思考之中：</p>
+        <ul>
+        <li><strong>What</strong> — 思考的内容是什么</li>
+        <li><strong>Why</strong> — 为什么这样思考</li>
+        </ul>
+
+        <h2>深层含义</h2>
+        <p><strong>1. 决策不能简化为步骤列表。</strong>传统SOP是步骤1→步骤2→步骤3。决策SOP则是每个步骤内的思考框架（What + Why）。</p>
+        <p><strong>2. 决策质量取决于思考框架。</strong>不是"做了几个步骤"，而是"每一步想了什么、为什么这样想"。</p>
+        <p><strong>3. 决策工作流 = 思考框架的序列化。</strong>需要把隐性的思考过程显性化，把"直觉判断"转化为"可复现的思考路径"。</p>
+
+        <hr>
+
+        <h2>待展开的问题</h2>
+        <p>如何设计决策的思考框架？What的清单是什么？Why的清单是什么？</p>
+        <p>决策类型分类：人事决策（录用/晋升）、规则决策（制度/流程）、战略决策（方向/资源）。每种类型的What/Why是否不同？</p>
+        <p>如何判断一个决策框架好不好？决策结果 vs 决策过程，哪个更重要？</p>
+        `
+      }
+    ]
+  },
+  {
+    name: "自我修炼",
+    desc: "情绪管理、认知升级、与自己和解——一个INTJ的内观记录",
+    tag: "修炼",
+    articles: [
+      {
+        id: 7, title: "意如万事检测清单",
+        summary: "万事如意=要求世界合我意；意如万事=我的意念随万事流动。情绪上来时过5步检查清单。",
+        quote: "我不需要掌控，我只需要应对。",
+        content: `
+        <p><strong>核心概念：</strong></p>
+        <p>"万事如意"的隐含假设是：要求世界合我的意。</p>
+        <p>"意如万事"是反过来：我的意念随万事流动。</p>
+        <blockquote>万事如意 = 要求世界合我意；意如万事 = 我的意念随万事流动。</blockquote>
+
+        <hr>
+
+        <h2>情绪上来时的5步检查清单</h2>
+
+        <p><strong>第一步：</strong>我现在的情绪，是因为"万事不如我意"吗？我的"预期"是什么？</p>
+
+        <p><strong>第二步：</strong>我的"意"是固化的标准答案，还是可以跟随现实流动的？</p>
+
+        <p><strong>第三步：</strong>对方/这件事有没有在"变好"？（发展眼光）</p>
+
+        <p><strong>第四步：</strong>这个不如意是因缘和合而成的，会不会自动消散？</p>
+
+        <p><strong>第五步：</strong>切换到"意如万事"模式——我不需要掌控，我只需要应对。</p>
+
+        <blockquote>我不需要掌控，我只需要应对。</blockquote>
+        `
+      },
+      {
+        id: 8, title: "被一只小龙虾点醒的下午",
+        summary: "恐惧驱动 vs 快乐驱动。每天5:30起床弹琴——必须是快乐驱动，不是恐惧驱动。",
+        quote: "和AI对话其实是和自己对话。恐惧驱动的不是真正的我。",
+        content: `
+        <h2>恐惧驱动 vs 快乐驱动</h2>
+
+        <p>蔡诗扬从3岁半开始弹琴，坚持到高中毕业（15年+童子功），25-35岁组乐队（流行、blues、摇滚），30多岁学编曲。</p>
+
+        <p>但多年来一直为别人的期待而活。</p>
+
+        <ul>
+        <li>高中成绩bottom 10%，大学留级</li>
+        <li>做过"自己快死了"的噩梦后发奋图强</li>
+        <li>早期工作：血液中心体检员（3年）</li>
+        <li>从外企培训做到HRD（产品→销售→管理）</li>
+        </ul>
+
+        <p><strong>核心承诺：</strong>每天5:30起床弹琴1小时。这是"每天先和自己待1小时"。</p>
+
+        <p>必须是快乐驱动，不是恐惧驱动。如果是因为"我怕不练就退步了"而去弹，那就不要弹。</p>
+
+        <p>这个框架放在管理上也成立：你是在恐惧驱动下带团队（怕出问题），还是在快乐驱动下让这些人变得更好？前者迟早把自己烧干，后者才有后劲。</p>
+
+        <hr>
+
+        <h2>小龙虾比喻</h2>
+        <p>用"养了一只小龙虾"作为开篇比喻——亲切有趣，降低说教感。AI对话作为叙事线索，增强代入感。从好奇→触动→顿悟→行动，情绪曲线清晰。</p>
+
+        <h2>文章结构</h2>
+        <p>9段式数字分段：</p>
+        <ol>
+        <li>对话体开篇 — "养了一只小龙虾"</li>
+        <li>恐惧驱动的自我觉察</li>
+        <li>音乐是真正的自己</li>
+        <li>AI对话的反思功能</li>
+        <li>恐惧驱动 vs 快乐驱动对比</li>
+        <li>为他人活 vs 为自己活</li>
+        <li>核心洞察：AI对话=自我对话</li>
+        <li>行动承诺</li>
+        <li>结尾互动号召："你准备好养一只小龙虾了吗？"</li>
+        </ol>
+
+        <blockquote>恐惧驱动的不是真正的我。放松≠落后，音乐才是真正的你。</blockquote>
+        `
+      },
+      {
+        id: 9, title: "道",
+        summary: "放下纠正别人的执念。他有他的弯路，他有他的跟头——那是他的道。",
+        quote: "事教人，一次就够。人教人，千遍也枉然。",
+        content: `
+        <p><strong>放下纠正别人的执念。</strong></p>
+
+        <p>每个人都有自己的人生道路。别人的选择，即使看起来是"弯路"，也是他们的道。</p>
+
+        <p>纠正别人的冲动，源于自己的执念。</p>
+
+        <blockquote>事教人，一次就够。人教人，千遍也枉然。</blockquote>
+
+        <p>亲身经历一次，胜过千遍说教。尊重他人通过经历学习的权利。</p>
+
+        <h2>真正的慈悲</h2>
+        <p>不是强行纠正，而是守好自己的道。</p>
+        <p>让自己成为榜样，让他看见，让他自己选择。</p>
+        <p>他走过去了，那是他的本事。他摔了，那是他的功课。</p>
+
+        <blockquote>可以点灯，但不能替别人走。</blockquote>
+        `
+      },
+      {
+        id: 11, title: "新疆旅行反思——意如万事",
+        summary: "从两次新疆旅行的师傅服务对比，悟出好与不好都是因缘和合，都是修炼。",
+        quote: "无论如意还是不如意，都是自己正在经历的一种体验和一次修炼。",
+        content: `
+        <h2>两次新疆旅行</h2>
+
+        <p><strong>去年的师傅：</strong></p>
+        <ul>
+        <li>会和我们说好旅行要点，哪里人少，哪里小众出片，哪里不需要去，哪里要走什么通道</li>
+        <li>会帮我们规划第二天行程，会和我们商量</li>
+        <li>遇到突发情况，会灵活地想应对策略</li>
+        <li>会帮我们拍照片，找各种机位，摄影技术也可以</li>
+        </ul>
+
+        <p><strong>今年的师傅：</strong></p>
+        <ul>
+        <li>服务没有去年细致</li>
+        <li>只会找大多数人停留的景点</li>
+        <li>对于景区内要怎么玩完全不清楚</li>
+        <li>不会提前规划，只会遇到问题临时再想对策（也想不出办法，只好问旅行社）</li>
+        <li>不会拍照</li>
+        </ul>
+
+        <p>所以一开始对于今年的师傅表现很失望，而且明确告诉旅行社他的问题。师傅后来有一点改进，但总觉得他笨笨的，我心里面的想法是：又懒又笨，又不会提前做功课。</p>
+
+        <p>但是后来才知道，这个师傅原来一直是开大巴的，这次是第一次带团（这也是旅行社的问题）。让我有感触的一点是，师傅是逐步主动起来，并且每天都在进步的。比如后面会偶尔询问我们要不要停车拍照片，帮我妈推轮椅，帮我家人拿包，主动带我们去我们没去过的点。他还是尽力把旅行社交代的任务完成好。</p>
+
+        <p>我觉得有两个原因：我们有几次晚饭带他一起吃；我们提了要求之后，他确实有听进去。</p>
+
+        <hr>
+
+        <h2>我的思考</h2>
+
+        <p><strong>1. 期待过高是因为有固化的标准答案。</strong>对于这次旅行我有比较高的期待，也就是我内心有一个标准的答案。如果不符合我内心的标准答案，我就会心情比较差和急躁。</p>
+
+        <p><strong>2. 其实这些都是我内心欲望的反应。</strong>我其他家人因为是第一次来，感受也并不明显，也没有对师傅的服务有特别高的期待，所以没有什么负面情绪。</p>
+
+        <p><strong>3. 用发展的眼光来看。</strong>如果用去年的标准要求所有人，不公平，我太理想化了。师傅其实每天都在变好，我用他的表现不好来映射到自己心里，不如用他每天的进步映射到我自己心里。这样无论对我个人情绪的控制、旅行的体验，还是我个人的成长都有好处。</p>
+
+        <p><strong>4. 缘起性空。</strong>很多时候我们用标准答案套在了其他人身上。要获得好的服务、好的体验，但要意识到"缘起性空"——任何一种好的体验都是因为千千万万的因素汇聚而成，并不是绝对的，说白了就是运气。要清楚的意识到这是多么难得，美好不会一直存在，今后未必还有。同时也要在不良体验的时候意识到，这也是千千万万的因素汇聚而成，不如意也不会永远存在。</p>
+
+        <blockquote>无论如意还是不如意，都是自己正在经历的一种体验和一次修炼。我不需要掌控，我只需要应对。</blockquote>
+        `
+      }
+    ]
+  }
+];
+
+const allArticles = sections.flatMap(s => s.articles.map(a => ({...a, _section: s.name, _tag: s.tag})));
+let savedScroll = 0;
+let currentFilter = 'all';
+
+function filterArticles(tag) {
+  currentFilter = tag;
+  document.querySelectorAll('.tag-btn').forEach(b => b.classList.toggle('active', b.dataset.tag === tag));
+  savedScroll = 0;
+  renderSections();
+  window.scrollTo(0, 0);
+}
+
+function renderSections() {
+  const group = document.getElementById('sectionGroup');
+  const filtered = currentFilter === 'all'
+    ? sections
+    : sections.filter(s => s.tag === currentFilter);
+  group.innerHTML = filtered.map(s => `
+    <div style="margin-bottom:32px">
+      <div class="section-title">${s.name}</div>
+      <div class="section-desc">${s.desc}</div>
+      ${s.articles.map(a => `
+        <div class="article-card" onclick="showArticle(${a.id})">
+          <h2>${a.title}</h2>
+          <p>${a.summary}</p>
+          <div class="quote">${a.quote}</div>
+        </div>
+      `).join('')}
+    </div>
+  `).join('');
+}
+
+function renderFilterBar() {
+  const bar = document.getElementById('filterBar');
+  const tags = [{k:'all',v:'全部'}, {k:'AI',v:'AI'}, {k:'管理',v:'管理'}, {k:'修炼',v:'修炼'}];
+  bar.innerHTML = tags.map(t => `
+    <span class="tag-btn${t.k === 'all' ? ' active' : ''}" data-tag="${t.k}" onclick="filterArticles('${t.k}')">${t.tag}</span>
+  `).join('');
+}
+
+function showList() {
+  document.getElementById('sectionGroup').style.display = 'block';
+  document.getElementById('articleView').style.display = 'none';
+  window.scrollTo(0, savedScroll);
+}
+
+function showArticle(id) {
+  const a = allArticles.find(x => x.id === id);
+  if (!a) return;
+  savedScroll = window.scrollY;
+  document.getElementById('sectionGroup').style.display = 'none';
+  document.getElementById('articleView').style.display = 'block';
+  document.getElementById('articleContent').innerHTML = `
+    <h1>${a.title}</h1>
+    <div class="content">${a.content}</div>
+  `;
+  window.scrollTo(0, 0);
+}
+
+renderFilterBar();
+renderSections();
+</script>
+</body>
+</html>
