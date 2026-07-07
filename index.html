@@ -518,7 +518,7 @@ function renderFilterBar() {
   const bar = document.getElementById('filterBar');
   const tags = [{k:'all',v:'全部'}, {k:'AI管理',v:'AI与管理'}, {k:'修炼',v:'自我修炼'}];
   bar.innerHTML = tags.map(t => `
-    <span class="tag-btn${t.k === 'all' ? ' active' : ''}" data-tag="${t.k}" onclick="filterArticles('${t.k}')">${t.tag}</span>
+    <span class="tag-btn${t.k === 'all' ? ' active' : ''}" data-tag="${t.k}" onclick="filterArticles('${t.k}')">${t.v}</span>
   `).join('');
 }
 
