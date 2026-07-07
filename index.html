@@ -70,9 +70,9 @@ a{color:var(--accent);text-decoration:none}
 <script>
 const sections = [
   {
-    name: "AI认知",
-    desc: "AI到底能做什么、不能做什么，以及一个非技术背景的人怎么用好它",
-    tag: "AI",
+    name: "AI与管理",
+    desc: "AI到底能做什么、不能做什么，以及一个非技术背景的HRD怎么用AI来管人、管事、做决定",
+    tag: "AI管理",
     articles: [
       {
         id: 1, title: "AI能力边界说明书",
@@ -202,13 +202,7 @@ const sections = [
         <p>这就是我的心<strong>得和体会。</strong></p>
         `
       }
-    ]
-  },
-  {
-    name: "管理决策",
-    desc: "管人、管事、做决定——一个HRD的管理思考",
-    tag: "管理",
-    articles: [
+      ,
       {
         id: 3, title: "管理AI与管理团队",
         summary: "AI是70分的实习生——能做70%的活，但永远需要你把关。管理AI比管理团队更难。",
@@ -522,7 +516,7 @@ function renderSections() {
 
 function renderFilterBar() {
   const bar = document.getElementById('filterBar');
-  const tags = [{k:'all',v:'全部'}, {k:'AI',v:'AI'}, {k:'管理',v:'管理'}, {k:'修炼',v:'修炼'}];
+  const tags = [{k:'all',v:'全部'}, {k:'AI管理',v:'AI与管理'}, {k:'修炼',v:'自我修炼'}];
   bar.innerHTML = tags.map(t => `
     <span class="tag-btn${t.k === 'all' ? ' active' : ''}" data-tag="${t.k}" onclick="filterArticles('${t.k}')">${t.tag}</span>
   `).join('');
